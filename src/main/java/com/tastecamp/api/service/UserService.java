@@ -1,5 +1,8 @@
 package com.tastecamp.api.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.tastecamp.api.dtos.UserDTO;
@@ -21,6 +24,14 @@ public class UserService {
             throw new UserAlreadyExistsException("Esse email já está sendo utilizado");
         }
         return userRepository.save(new UserModel(body));
+    }
+
+    public List<UserModel> getUsers(){
+        return userRepository.findAll();
+    }
+
+    public Optional<UserModel> getUserById(Long id){
+        return userRepository.findById(id);
     }
     
 }

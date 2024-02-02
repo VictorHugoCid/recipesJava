@@ -13,6 +13,9 @@ import com.tastecamp.api.models.UserModel;
 import com.tastecamp.api.service.UserService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
@@ -36,6 +39,16 @@ public class UserController {
         }
 
         // return new UserModel(Id);
+    }
+
+    @GetMapping
+    public ResponseEntity getUsers() {
+
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(userService.getUsers()); 
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.OK).body("mensagenzinha de erro");
+        }
     }
     
 }

@@ -4,21 +4,26 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.apache.catalina.mbeans.UserMBean;
 import org.springframework.stereotype.Service;
 
 import com.tastecamp.api.dtos.RecipeDTO;
 import com.tastecamp.api.errors.RecipeAlreadyExistsException;
 import com.tastecamp.api.errors.RecipeNotFoundException;
 import com.tastecamp.api.models.RecipeModel;
+import com.tastecamp.api.models.UserModel;
 import com.tastecamp.api.repository.RecipeRepository;
+import com.tastecamp.api.repository.UserRepository;
 
 @Service
 public class RecipeService {
     
     final RecipeRepository recipeRepository;
+    final UserRepository userRepository;
 
-    RecipeService(RecipeRepository recipeRepository) {
+    RecipeService(RecipeRepository recipeRepository, UserRepository userRepository) {
         this.recipeRepository = recipeRepository;
+        this.userRepository = userRepository;
     }
 
     public List<RecipeModel> findAllRecipes() {
@@ -29,13 +34,22 @@ public class RecipeService {
         return recipeRepository.findById(id);
     }
 
-    public RecipeModel createRecipe(RecipeDTO body) {
+    public Optional<RecipeModel> createRecipe(RecipeDTO body) {
+        // if(userRepository.existsBy){
+
+        // }
         
         if(recipeRepository.existsByTitle(body.getTitle())){
             throw new RecipeAlreadyExistsException("Já existe uma receita com esse título");
         }
-        RecipeModel newRecipe = new RecipeModel(body);
-        return recipeRepository.save(newRecipe);
+
+        Optional<UserModel> user = userRepository.findById(body.getAuthorId());
+        if(!user.isPresent()){
+            return user.empty();
+        }
+
+        RecipeModel newRecipe = new RecipeModel(body, user.get());
+        return Optional.of(recipeRepository.save(newRecipe));
     }
 
     public void deleteRecipeById(Long id) {

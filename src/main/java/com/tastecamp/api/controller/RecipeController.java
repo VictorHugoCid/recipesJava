@@ -53,9 +53,7 @@ public class RecipeController {
     @PostMapping()
     public ResponseEntity createRecipe(@RequestBody @Valid RecipeDTO body) {
         try {
-            recipeService.createRecipe(body);
-            // RecipeModel recipe = recipeService.findById(null)
-            return ResponseEntity.status(HttpStatus.CREATED).body("recipe");
+            return ResponseEntity.status(HttpStatus.CREATED).body(recipeService.createRecipe(body));
         } catch (RecipeAlreadyExistsException error) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(error.getMessage());
         }
