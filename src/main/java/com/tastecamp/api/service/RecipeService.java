@@ -4,14 +4,15 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.apache.catalina.mbeans.UserMBean;
 import org.springframework.stereotype.Service;
 
 import com.tastecamp.api.dtos.RecipeDTO;
 import com.tastecamp.api.errors.RecipeAlreadyExistsException;
 import com.tastecamp.api.errors.RecipeNotFoundException;
+import com.tastecamp.api.models.CategoryModel;
 import com.tastecamp.api.models.RecipeModel;
 import com.tastecamp.api.models.UserModel;
+import com.tastecamp.api.repository.CategoryRepository;
 import com.tastecamp.api.repository.RecipeRepository;
 import com.tastecamp.api.repository.UserRepository;
 
@@ -20,10 +21,12 @@ public class RecipeService {
     
     final RecipeRepository recipeRepository;
     final UserRepository userRepository;
+    final CategoryRepository categoryRepository;
 
-    RecipeService(RecipeRepository recipeRepository, UserRepository userRepository) {
+    RecipeService(RecipeRepository recipeRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
         this.recipeRepository = recipeRepository;
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public List<RecipeModel> findAllRecipes() {
@@ -35,9 +38,6 @@ public class RecipeService {
     }
 
     public Optional<RecipeModel> createRecipe(RecipeDTO body) {
-        // if(userRepository.existsBy){
-
-        // }
         
         if(recipeRepository.existsByTitle(body.getTitle())){
             throw new RecipeAlreadyExistsException("Já existe uma receita com esse título");
@@ -45,10 +45,12 @@ public class RecipeService {
 
         Optional<UserModel> user = userRepository.findById(body.getAuthorId());
         if(!user.isPresent()){
-            return user.empty();
+            return Optional.empty();
         }
 
-        RecipeModel newRecipe = new RecipeModel(body, user.get());
+        List<CategoryModel> categories = categoryRepository.findAllById(body.getCategoryIds());
+
+        RecipeModel newRecipe = new RecipeModel(body, user.get(), categories);
         return Optional.of(recipeRepository.save(newRecipe));
     }
 
